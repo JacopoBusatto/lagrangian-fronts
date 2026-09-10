@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lagrangian-fronts"
+dynamic = ["version"]
+description = "Trajectory transition matrices and Lagrangian flux and directional front analysis"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{name = "Jacopo Busatto"}]
+dependencies = [
+    "numpy>=1.26,<2",
+    "pandas>=2.2,<3",
+    "pyarrow>=14",
+    "xarray>=2024.1",
+    "netCDF4>=1.6",
+    "zarr>=2.18,<3",
+    "PyYAML>=6",
+    "scipy>=1.11",
+    "pyproj>=3.6",
+    "matplotlib>=3.8",
+    "cartopy>=0.22",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8", "build>=1.2"]
+
+[project.scripts]
+lagrangian-fronts = "lagrangian_fronts.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.dynamic]
+version = {attr = "lagrangian_fronts.__version__"}
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

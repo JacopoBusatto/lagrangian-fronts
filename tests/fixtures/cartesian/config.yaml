@@ -1,0 +1,92 @@
+config_version: 1
+
+matrix:
+  compute: false
+  path: unused.parquet
+  id: tank
+  timestep: 1.0
+  time_unit: s
+output:
+  root: unused
+  run_name: tank
+geometry:
+  coordinate_system: cartesian
+  length_unit: cm
+grid:
+  x_min: 0.0
+  x_max: 11.0
+  y_min: 0.0
+  y_max: 11.0
+  dx: 1.0
+  dy: 1.0
+statistics:
+  min_moving_support: 1
+  angular_bins: 36
+  direction_zero_tolerance: 1.0e-12
+  high_R1: 0.8
+  low_R1: 0.5
+transport:
+  percentile: 0.9
+  ridge_field: raw
+  transverse_scale_grid: 1.0
+  interpolation_weight_tolerance: 1.0e-10
+  orientation_reliable_R1: 0.8
+  orientation_ambiguous_R1: 0.5
+  direction_disagreement_degrees: 20.0
+  abrupt_tangent_mismatch_degrees: 45.0
+  ridge_comparison_tolerance: 1.0e-12
+  smoothing_window_cells: 3
+directional:
+  minimum_P_move: 0.5
+  minimum_R1: 0.8
+  minimum_strength: 0.5
+  maximum_neighbor_direction_difference_degrees: 45.0
+  maximum_step_direction_mismatch_degrees: 45.0
+  minimum_component_cells: 3
+  transverse_scale_grid: 1.0
+  ridge_comparison_tolerance: 1.0e-12
+  ridge_plateau_tolerance: 1.0e-12
+  interpolation_weight_tolerance: 1.0e-10
+fronts:
+  half_width_grid_scales: 5
+  sampling_interval_grid_scales: 1.0
+  core_refinement_grid_scales: 1.0
+  robust_median_window_samples: 3
+  composite_half_window_sections: 2
+  minimum_persistent_neighbor_sections: 2
+  minimum_persistent_fraction: 0.5
+  diagnostic_low_R1: 0.5
+  diagnostic_large_direction_disagreement_degrees: 20.0
+  diagnostic_high_curvature_degrees: 60.0
+  diagnostic_strong_outer_recovery_fraction: 0.5
+  diagnostic_min_full_section_valid_samples: 7
+  nearby_branch_cross_distance_scales: 5.0
+  nearby_branch_along_distance_scales: 1.0
+validation:
+  normalization_atol: 1.0e-12
+  probability_rtol: 1.0e-10
+  probability_atol: 1.0e-12
+  center_atol: 1.0e-09
+  gradient_zero_tolerance: 1.0e-12
+  interpolation_weight_tolerance: 1.0e-10
+  gradient_search_radius_grid_scales: 1.0
+  local_background_radius_grid_scales: 2.0
+  duplicate_disagreement_grid_scales: 1.0
+  core_gradient_ratio_epsilon: 1.0e-12
+  multiple_drop_similarity_fraction: 0.1
+  direct_sample_atol_grid_cells: 1.0e-08
+plotting:
+  enabled: false
+  dpi: 160
+  projection: SouthPolarStereo
+  central_longitude: 0.0
+  circular_boundary: true
+  draw_coastlines: true
+  vector_stride_cells: 5
+  vector_reference: 5.0
+  directional_vector_reference: 0.5
+  structure_map_max_percentile: 100.0
+  debug_plots: false
+write_debug_outputs: false
+run_validation: true
+analysis_version: 5.0.0-production

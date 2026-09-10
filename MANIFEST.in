@@ -1,0 +1,6 @@
+include LICENSE CITATION.cff CHANGELOG.md README.md
+graft docs
+graft examples
+graft tests
+recursive-exclude examples/production/data *
+global-exclude __pycache__ *.py[cod]

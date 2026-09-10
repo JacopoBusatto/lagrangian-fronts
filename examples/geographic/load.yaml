@@ -1,0 +1,45 @@
+config_version: 1
+matrix:
+  compute: false
+  path: ../../outputs/geographic/matrix/transition_matrix.parquet
+  timestep: 30
+  time_unit: day
+  segment_mode: non_overlapping
+  max_interpolation_gap: null
+geometry:
+  coordinate_system: geographic
+  length_unit: km
+  ellipsoid: WGS84
+grid:
+  lon_min: 0.0
+  lon_max: 11.0
+  lat_min: 0.0
+  lat_max: 11.0
+  dlon: 1.0
+  dlat: 1.0
+  periodic_longitude: false
+statistics:
+  min_moving_support: 1
+  angular_bins: 36
+flux:
+  percentile: 0.9
+  ridge_field: raw
+  transverse_scale_grid: 1.0
+directional:
+  minimum_P_move: 0.5
+  minimum_R1: 0.8
+  minimum_strength: 0.5
+  minimum_component_cells: 3
+fronts:
+  half_width_grid_scales: 5
+validation: {}
+output:
+  root: ../../outputs
+  run_name: geographic_loaded
+plotting:
+  enabled: true
+  projection: PlateCarree
+  draw_coastlines: false
+  dpi: 80
+write_debug_outputs: false
+run_validation: true

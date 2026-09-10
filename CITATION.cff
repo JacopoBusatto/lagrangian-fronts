@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata in this file."
+type: software
+title: "lagrangian-fronts"
+version: 0.1.0
+authors:
+  - family-names: Busatto
+    given-names: Jacopo
+license: MIT
+abstract: >-
+  Trajectory ingestion, empirical transition matrices, and Lagrangian flux and
+  directional core/front analysis for geographic and Cartesian data.

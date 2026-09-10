@@ -1,0 +1,58 @@
+config_version: 1
+input:
+  paths:
+  - trajectories.csv
+  format: auto
+  columns:
+    trajectory: particle
+    time: t
+    x: xpos
+    y: ypos
+  trajectory_id:
+    mode: column
+    scope: file
+  time:
+    kind: numeric
+    unit: s
+matrix:
+  compute: true
+  path: null
+  timestep: 2
+  time_unit: s
+  segment_mode: non_overlapping
+  max_interpolation_gap: null
+geometry:
+  coordinate_system: cartesian
+  length_unit: m
+grid:
+  x_min: 0.0
+  x_max: 11.0
+  y_min: 0.0
+  y_max: 11.0
+  dx: 1.0
+  dy: 1.0
+statistics:
+  min_moving_support: 1
+  angular_bins: 36
+flux:
+  percentile: 0.9
+  ridge_field: raw
+  transverse_scale_grid: 1.0
+directional:
+  minimum_P_move: 0.5
+  minimum_R1: 0.8
+  minimum_strength: 0.5
+  minimum_component_cells: 3
+fronts:
+  half_width_grid_scales: 5
+validation: {}
+output:
+  root: ../../outputs
+  run_name: cartesian
+plotting:
+  enabled: true
+  projection: PlateCarree
+  draw_coastlines: false
+  dpi: 80
+write_debug_outputs: false
+run_validation: true
