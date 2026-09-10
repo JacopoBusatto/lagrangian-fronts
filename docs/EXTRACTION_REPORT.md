@@ -2,7 +2,11 @@
 
 ## Reference and scope
 
-The source was the validated working implementation at `kinematicParcels/research/lagrangian_fronts/`, including its completed flux terminology migration. The parent repository's HEAD was `10e63b4675a6b6d3f9eb1746bc9ecb6b04bf0ed5`, but the working module, not that earlier commit alone, was the extraction reference. Before changing anything, the relevant parent suite passed **231 tests, 1 warning in 35.66 s**.
+The source was the validated working implementation at `kinematicParcels/research/lagrangian_fronts/`, including its completed flux terminology migration. The parent repository's HEAD was `10e63b4675a6b6d3f9eb1746bc9ecb6b04bf0ed5`, but the working module, not that earlier commit alone, was the extraction reference. Before changing anything, the relevant parent suite passed **231 tests, 1 warning in 35.66 s**:
+
+```bash
+python -m pytest tests/lagrangian_fronts tests/test_gridded_transition_matrix.py tests/test_lagrangian_front_matrix_compatibility.py -q
+```
 
 Fresh geographic and Cartesian reference runs were captured before extraction. Each includes the matrix, configuration, all 26 scientific result tables and remaining scalar/summary fields. A frozen source archive and SHA-256 file inventory are retained privately under `.local/reference/`. Existing historical regression fixtures were also migrated without rewriting their numerical tables.
 
@@ -94,4 +98,30 @@ The import resolved to the wheel environment's `site-packages`, version **0.1.0*
 
 The resolved fresh environment used NumPy 1.26.4, pandas 2.3.3, PyArrow 25.0.1, xarray 2026.7.0, netCDF4 1.7.4, Zarr 2.18.7, PyYAML 6.0.3, SciPy 1.17.1, pyproj 3.8.0, Matplotlib 3.11.1 and Cartopy 0.25.0. These versions differ from several parent-environment versions while preserving the exact scientific regression results.
 
-All standalone acceptance checks are complete. The authoritative local repository is recorded before source cleanup; the handoff status is updated below after the old implementation is removed.
+All standalone acceptance checks completed before source cleanup. The standalone project was initialized as a local Git repository on `main` and committed as `a7dfbed` (`Extract validated Lagrangian fronts as standalone 0.1.0`), establishing the authoritative source before the handoff.
+
+The old implementation and migrated tests have been removed from the parent's active source tree. `research/lagrangian_fronts/` now contains only a README migration pointer, and the parent README links to it. The recursive deletion command was blocked by the execution policy, so the handoff used reversible moves: the retired module, tests and original generated example outputs are preserved under the standalone repository's ignored `.local/retired-source/`. This is a private recovery archive, excluded from Git, package discovery and distributions. The original production YAMLs are also available under `.local/configs/`, and the pre-extraction ZIP and hash inventory remain under `.local/reference/`. No second scientific implementation is maintained.
+
+The parent's optional cross-project oracle now imports the installed `lagrangian_fronts` package, retaining all four comparisons and exact assertions. It skips only when that independent package is absent. No parent runtime dependency was added. After handoff, from the parent repository:
+
+```powershell
+python -m pytest tests/test_gridded_transition_matrix.py tests/test_lagrangian_front_matrix_compatibility.py -q
+```
+
+Result without the standalone package installed: **43 passed, 1 skipped, 1 warning in 1.84 s**. To also verify the four cross-project comparisons, a separate integration environment inherited the existing parent dependencies and installed the standalone wheel without changing the parent environment:
+
+```powershell
+python -m venv --system-site-packages ../lagrangian-fronts/.local/parent-oracle-env
+& ../lagrangian-fronts/.local/parent-oracle-env/Scripts/python.exe -m pip install --no-deps ../lagrangian-fronts/dist/lagrangian_fronts-0.1.0-py3-none-any.whl
+& ../lagrangian-fronts/.local/parent-oracle-env/Scripts/python.exe -m pytest tests/test_gridded_transition_matrix.py tests/test_lagrangian_front_matrix_compatibility.py -q
+```
+
+Result: **47 passed, 1 warning in 2.04 s**. This parent interoperability check is separate from the two clean standalone environments described above. The installed wheel was also rechecked after handoff from an external directory: version/import and module CLI still work, with neither parent package importable.
+
+The source archive and wheel were rebuilt after this report was finalized; package source bytes remain identical to the wheel that passed the full installed test suite. Public source, examples and documentation contain no personal data paths. The parent repository's unrelated working changes and Git history were preserved; its handoff changes remain uncommitted for the maintainer to review.
+
+## Remaining maintainer steps and limits
+
+Local extraction and validation are complete. Before publishing, the maintainer can create a remote repository, replace the README's `<repository-url>` placeholder, add the remote and push the local history. No remote was created and nothing was pushed or published to PyPI. A paper citation, DOI or ORCID can be added only when available. To share the project now, use the source archive (includes examples, docs and tests) or wheel (package and CLI); private `.local` content is excluded.
+
+Scientific scope is unchanged: input trajectories must already be prepared, selected observations are materialized in memory, and specialized ragged layouts/nonstandard calendars require upstream conversion. External production matrices are not bundled; their portable templates retain scientific settings and require local input paths. Python 3.12.3 on Windows was exercised; other supported Python versions and platforms were not tested in this extraction. No QC, grid inference, CRS conversion, new front methods or other scientific changes were introduced.
