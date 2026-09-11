@@ -12,9 +12,9 @@ Endpoints are exact when observed, otherwise linearly interpolated between brack
 
 A segment contributes only if both endpoints are in the grid. With retained counts Cᵢⱼ:
 
-\[
+```math
 N_i=\sum_j C_{ij},\qquad P_{ij}=C_{ij}/N_i,\qquad \sum_jP_{ij}=1.
-\]
+```
 
 Out-of-domain endpoints do not remain in Nᵢ. Stay transitions i→i are retained. Sparse tables store only occupied links, with positive integer counts and probabilities consistent with those counts. Matrix validation runs before scientific analysis and never repairs or renormalizes an input row.
 
@@ -32,11 +32,11 @@ The frozen analysis requires at least one moving transition somewhere in the mat
 
 ## Lagrangian displacement flux pathway
 
-\[
+```math
 \mathbf U_{\mathrm{out,all}}=
 \frac{1}{\Delta t}\sum_{j\ne i}P_{ij}\Delta\mathbf r_{ij},
 \qquad [U]=L/T.
-\]
+```
 
 We call this vector **Lagrangian displacement flux**, shortened to **flux**. It weights connectivity by physical displacement and expresses an average displacement rate over the full source population, including stays. Rates use `geometry.length_unit/matrix.time_unit`. The scalar `S_flux_rate` used for flux cores is its magnitude; optional support-aware 3×3 smoothing preserves the existing implementation. The `U_*` names continue to denote the same displacement-rate vectors.
 
@@ -50,23 +50,24 @@ Front detection samples flux projected along the core direction across local sec
 
 The optional component/segment diagnostic `integrated_ridge_strength_area_rate` is the trapezoidal line integral of the selected scalar field `S0_field_rate` **along the ridge**:
 
-\[
+```math
 I_{\mathrm{ridge}}=\sum_{(a,b)\in\mathrm{ridge\ edges}}
 \frac{S_{0,a}+S_{0,b}}{2}\,\ell_{ab},\qquad [I_{\mathrm{ridge}}]=L^2/T.
-\]
+```
 
 The selected field is raw or smoothed according to `flux.ridge_field`. Closed segments include the closing edge, isolated cells contribute zero, and component values sum their segment integrals. Public columns use the geometry/time suffix, for example `integrated_ridge_strength_km2_day`. This diagnostic combines ridge intensity and length; it is not flux through a cross-section. `rank_integrated_ridge_strength` ranks that integral, while `rank_median_flux` ranks the median raw flux magnitude. The integral and its rankings retain their original numerical definitions.
 
 ## Directional pathway
 
-\[
+```math
 \mathbf D_{\mathrm{out,move}}=\sum_{j\ne i}q_{ij}\hat{\mathbf r}_{ij},
 \qquad |\mathbf D_{\mathrm{out,move}}|=R_1,
-\]
-\[
+```
+
+```math
 \mathbf D_{\mathrm{out,all}}=P_{\mathrm{move}}\mathbf D_{\mathrm{out,move}},
 \qquad D=|\mathbf D_{\mathrm{out,all}}|=P_{\mathrm{move}}R_1.
-\]
+```
 
 R₁ measures first-harmonic directional coherence between 0 and 1; θ₁ is its bearing when defined. Unit displacement directions remove distance weighting. Supported candidate cells simultaneously satisfy absolute thresholds on P_move, R₁, and D. There is **no global directional percentile**.
 
