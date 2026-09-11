@@ -2,12 +2,12 @@
 config_version: 1
 matrix:
   compute: false
-  path: data/drifters_10d.parquet
+  path: "F:/PLATFORMS/DRIFTERS/postprocessing/SO_aoml_24h/gridded_transition_matrix_dt_10d_table.parquet"
   id: drifters_10d
   timestep: 10.0
   time_unit: day
 output:
-  root: ../../outputs
+  root: "F:/PLATFORMS/DRIFTERS/postprocessing/SO_aoml_24h/lagrangian-fronts_10d"
   run_name: drifters_10d
 geometry:
   coordinate_system: geographic
@@ -23,7 +23,7 @@ grid:
   periodic_longitude: true
 statistics:
   min_moving_support: 3
-  angular_bins: 18
+  angular_bins: 36
 flux:
   percentile: 0.85
   ridge_field: raw

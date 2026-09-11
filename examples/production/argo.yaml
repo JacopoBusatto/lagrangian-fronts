@@ -2,12 +2,12 @@
 config_version: 1
 matrix:
   compute: false
-  path: data/argo_30d.parquet
+  path: "F:/PLATFORMS/ARGO/postprocessing/SO_no_fallback_depth/z0850_1150/gridded_transition_matrix_dt_30d_table.parquet"
   id: argo_30d
   timestep: 30.0
   time_unit: day
 output:
-  root: ../../outputs
+  root: "F:/PLATFORMS/ARGO/postprocessing/SO_no_fallback_depth/z0850_1150/lagrangian-fronts_30d"
   run_name: argo_30d
 geometry:
   coordinate_system: geographic
@@ -25,7 +25,7 @@ statistics:
   min_moving_support: 3
   angular_bins: 36
 flux:
-  percentile: 0.85
+  percentile: 0.80
   ridge_field: raw
   transverse_scale_grid: 2.0
 directional:
@@ -33,14 +33,14 @@ directional:
   minimum_R1: 0.7
   minimum_strength: 0.5
   maximum_neighbor_direction_difference_degrees: 45.0
-  maximum_step_direction_mismatch_degrees: 90.0
+  maximum_step_direction_mismatch_degrees: 60.0
   minimum_component_cells: 3
   transverse_scale_grid: 2.0
   ridge_comparison_tolerance: 1.0e-12
   ridge_plateau_tolerance: 1.0e-12
   interpolation_weight_tolerance: 1.0e-10
 fronts:
-  half_width_grid_scales: 5
+  half_width_grid_scales: 3
   sampling_interval_grid_scales: 1.0
   core_refinement_grid_scales: 1.0
   robust_median_window_samples: 3
