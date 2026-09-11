@@ -27,7 +27,7 @@ python -m pip install .
 
 This installs the required scientific libraries and the `lagrangian-fronts` command. No kinematicParcels installation, Git checkout, or `PYTHONPATH` adjustment is needed to run it. Version 0.1.0 supports the validated NumPy 1.x, pandas 2.x and Zarr 2.x interfaces; their major-version bounds are declared in `pyproject.toml`. Other dependencies use minimum versions, not exact pins. Manifests record the versions actually used.
 
-The repository URL is a maintainer placeholder (`<repository-url>`); no public remote is configured. This software has not been published to PyPI. Install from the source directory or the supplied wheel rather than assuming an online release exists.
+Source code is available in the [GitHub repository](https://github.com/JacopoBusatto/lagrangian-fronts). This software has not been published to PyPI. Install from the source directory or the supplied wheel.
 
 ## Run the included examples
 

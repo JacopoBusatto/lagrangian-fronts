@@ -3,6 +3,7 @@ message: "If you use this software, please cite it using the metadata in this fi
 type: software
 title: "lagrangian-fronts"
 version: 0.1.0
+repository-code: "https://github.com/JacopoBusatto/lagrangian-fronts"
 authors:
   - family-names: Busatto
     given-names: Jacopo

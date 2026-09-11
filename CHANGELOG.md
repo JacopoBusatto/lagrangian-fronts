@@ -6,5 +6,7 @@
 - Added local installation, the `lagrangian-fronts` command, and `python -m lagrangian_fronts`, each using the existing single YAML configuration.
 - Preserved configuration version 1, matrix schemas, scientific calculations, thresholds, ridge/plateau selection, front detection and output contracts.
 - Migrated scientific tests and reference fixtures, portable examples, documentation, and the existing MIT license.
+- Added automatic CLI stage messages and tqdm bars inside slow front-analysis and validation loops.
+- Avoided empty-median warnings for missing diagnostics while preserving scientific results.
 
-This version packages the existing scientific method. It has not been published to PyPI and has no remote repository URL or paper DOI yet.
+This version packages the existing scientific method. It has not been published to PyPI and has no paper DOI yet.
