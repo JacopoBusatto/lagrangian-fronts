@@ -1,8 +1,11 @@
 import ast
 import json
+import logging
 import subprocess
 import sys
+from contextlib import nullcontext
 from dataclasses import replace
+from io import StringIO
 from pathlib import Path
 
 import pandas as pd
@@ -37,6 +40,8 @@ def test_cli_compute_and_load_are_scientifically_identical(tmp_path, mode):
     )
     assert process.returncode == 0, process.stderr
     computed = tmp_path / "computed"
+    assert process.stdout.strip() == str(computed)
+    assert "Flux fronts completed in " in process.stderr
     matrix_path = computed / "matrix/transition_matrix.parquet"
     raw["matrix"].update(compute=False, path=str(matrix_path))
     raw.pop("input")
@@ -50,6 +55,9 @@ def test_cli_compute_and_load_are_scientifically_identical(tmp_path, mode):
     )
     assert process.returncode == 0, process.stderr
     loaded = tmp_path / "loaded"
+    assert process.stdout.strip() == str(loaded)
+    assert "Run completed in " in process.stderr
+    assert "sections/s" not in process.stderr
     for name in (*STANDARD_TABLES, *DIRECTIONAL_TABLES, "gradient_validation.parquet"):
         actual = pd.read_parquet(loaded / "analysis" / name)
         expected = pd.read_parquet(computed / "analysis" / name)
@@ -91,7 +99,7 @@ def test_cli_compute_and_load_are_scientifically_identical(tmp_path, mode):
         read_transition_matrix(matrix_path, config)
 
 
-def test_compute_uses_in_memory_matrix(config, tmp_path, monkeypatch):
+def test_compute_uses_in_memory_matrix(config, tmp_path, monkeypatch, capsys):
     pd.DataFrame(
         {"track": [1, 1], "t": [0, 2], "X": [0.2, 1.2], "Y": [0.2, 0.2]}
     ).to_csv(tmp_path / "tracks.csv", index=False)
@@ -102,6 +110,55 @@ def test_compute_uses_in_memory_matrix(config, tmp_path, monkeypatch):
     monkeypatch.setattr(pd, "read_parquet", forbidden)
     destination = run(config)
     assert (destination / "matrix/transition_matrix.parquet").is_file()
+    captured = capsys.readouterr()
+    assert captured.out == captured.err == ""
+
+
+@pytest.mark.parametrize("size", [0, 3])
+@pytest.mark.parametrize("failure", [None, ValueError, KeyboardInterrupt])
+def test_loop_progress_counts_rendering_and_cleanup(size, failure, monkeypatch, caplog):
+    from lagrangian_fronts import _progress
+
+    stream, bars, clock = StringIO(), [], [0.0]
+    monkeypatch.setattr(stream, "isatty", lambda: True)
+    monkeypatch.setattr(sys, "stderr", stream)
+    real_tqdm = _progress.tqdm
+
+    def make_bar(**kwargs):
+        bar = real_tqdm(**kwargs)
+        bar._time = lambda: clock[0]
+        bar.start_t = bar.last_print_t = 0.0
+        bars.append(bar)
+        return bar
+
+    monkeypatch.setattr(_progress, "tqdm", make_bar)
+    expected_error = pytest.raises(failure) if size and failure else nullcontext()
+    with caplog.at_level(logging.INFO, logger="lagrangian_fronts"), expected_error:
+        for item in _progress.track(range(size), desc="Sampling", total=size, unit="sections"):
+            assert bars[0].n == item  # The current item has not completed yet.
+            if item == 1:
+                assert "1/3" in stream.getvalue()
+                if failure:
+                    raise failure("interrupted work")
+            clock[0] += 0.25  # Advance the display deterministically without sleeps.
+    if size:
+        assert bars[0].n == (1 if failure else size)
+        assert bars[0].disable  # tqdm closes and clears the bar, including on errors.
+        assert "\r" in stream.getvalue()
+    else:
+        assert bars == [] and stream.getvalue() == ""
+
+
+@pytest.mark.parametrize("terminal,level", [(False, logging.INFO), (True, logging.WARNING)])
+def test_loop_progress_is_quiet_outside_cli_terminal(terminal, level, monkeypatch, caplog):
+    from lagrangian_fronts._progress import track
+
+    stream = StringIO()
+    monkeypatch.setattr(stream, "isatty", lambda: terminal)
+    monkeypatch.setattr(sys, "stderr", stream)
+    with caplog.at_level(level, logger="lagrangian_fronts"):
+        assert list(track(range(3), desc="Sampling", total=3, unit="sections")) == [0, 1, 2]
+    assert stream.getvalue() == ""
 
 
 def test_empty_computed_matrix_records_failure(config, tmp_path):

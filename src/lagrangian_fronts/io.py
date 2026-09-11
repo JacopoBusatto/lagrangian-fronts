@@ -421,6 +421,7 @@ def dependency_versions():
         "matplotlib",
         "cartopy",
         "PyYAML",
+        "tqdm",
     ):
         try:
             versions[name] = metadata.version(name)

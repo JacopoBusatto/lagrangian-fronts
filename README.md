@@ -35,6 +35,10 @@ From the project directory after installation:
 
 ```bash
 lagrangian-fronts --config examples/geographic/config.yaml
+```
+or
+
+```bash
 python -m lagrangian_fronts --config examples/cartesian/config.yaml
 ```
 
@@ -60,6 +64,8 @@ Keep `config_version: 1`. Use `matrix.compute: true` with an `input` section for
 Lagrangian displacement flux is a probability-weighted displacement rate with units of length/time. Directional strength is the dimensionless product `P_move * R1`. There is no directional percentile. The [methodology](docs/METHODOLOGY.md) explains both pathways, interpolation, row normalization and integrated ridge strength.
 
 Each successful run contains `matrix/`, `analysis/`, `resolved_config.yaml` and `manifest.json`. Analysis includes `flux_cores.parquet`, `flux_fronts.parquet`, directional tables and comparisons; figures are in `analysis/figures/`. Validation and detailed component/section diagnostics retain their YAML switches. Load mode references the original matrix instead of copying it. Git metadata is optional.
+
+The CLI automatically reports stages and elapsed times on stderr, with a live tqdm bar inside slow front-analysis and validation loops. Each bar shows completed items and a local ETA; flux profile composites count segment groups, while other front loops count sections. Redirected output keeps plain stage messages, and ordinary Python calls remain silent. Stdout contains the final output path. No progress setting is needed. After updating, run `python -m pip install -e .` to install the tqdm dependency.
 
 ## Python API
 

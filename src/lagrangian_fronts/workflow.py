@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import replace
 from pathlib import Path
 
 import yaml
 
-from .analysis import analyze_transition_matrix
+from .analysis import _stage, analyze_transition_matrix
 from .config import AnalysisConfig
 from .io import (
     create_run_directory,
@@ -73,10 +74,10 @@ def _run_into(config, run_dir):
     input_files = ()
     matrix_summary = {}
     if config.matrix.compute:
-        trajectories = read_trajectories(config)
+        trajectories = _stage("Reading trajectories", read_trajectories, config)
         input_files = trajectories.input_files
         config = replace(config, input=replace(config.input, paths=input_files))
-        built = compute_transition_matrix(trajectories, config)
+        built = _stage("Building matrix", compute_transition_matrix, trajectories, config)
         matrix = built.transition_table
         matrix_summary = built.diagnostics
         input_path = matrix_dir / "transition_matrix.parquet"
@@ -84,7 +85,7 @@ def _run_into(config, run_dir):
         del trajectories
     else:
         input_path = Path(config.matrix.path).resolve()
-        matrix = read_transition_matrix(input_path, config)
+        matrix = _stage("Reading matrix", read_transition_matrix, input_path, config)
         sidecar = input_path.with_name("matrix_summary.yaml")
         if sidecar.exists():
             matrix_summary = yaml.safe_load(sidecar.read_text(encoding="utf-8"))
@@ -113,6 +114,7 @@ def _run_into(config, run_dir):
                     )
                 },
             }
+    logging.getLogger("lagrangian_fronts").info("Writing matrix metadata...")
     matrix_summary = {
         **matrix_summary,
         "summary_version": 1,
@@ -155,6 +157,7 @@ def _run_into(config, run_dir):
     summary_path.write_text(
         yaml.safe_dump(json_safe(matrix_summary), sort_keys=False), encoding="utf-8"
     )
+    logging.getLogger("lagrangian_fronts").info("Writing analysis tables...")
     cells = compact_cell_table(statistics.cells)
     write_scientific_tables(
         analysis_dir,
@@ -204,7 +207,8 @@ def _run_into(config, run_dir):
             write_validation_table(analysis_dir, validation.validation, config)
         )
 
-    figures = create_standard_figures(
+    figures = _stage(
+        "Figures", create_standard_figures,
         statistics.cells,
         cores,
         fronts,
@@ -216,7 +220,8 @@ def _run_into(config, run_dir):
     )
     status_counts = fronts.fronts.front_status.value_counts()
     directional_status_counts = directional_fronts.fronts.front_status.value_counts()
-    write_reproducibility_files(
+    _stage(
+        "Finalizing run", write_reproducibility_files,
         run_dir,
         config=config,
         input_path=input_path,

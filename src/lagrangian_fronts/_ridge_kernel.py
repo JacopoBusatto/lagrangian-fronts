@@ -511,7 +511,7 @@ def _summary_statistics(
         "median_U_out_all_rate": float(rows.U_out_all_magnitude_rate.median()),
         "maximum_U_out_all_rate": float(rows.U_out_all_magnitude_rate.max()),
         "mean_C_perp_rate": float(rows.C_perp_rate.mean()),
-        "median_C_perp_rate": float(rows.C_perp_rate.median()),
+        "median_C_perp_rate": float(rows.C_perp_rate.dropna().median()),
         "mean_C_perp_normalized": float(rows.C_perp_normalized.mean()),
         "mean_R1_out": float(rows.R1_out.mean()),
         "median_R1_out": float(rows.R1_out.median()),
@@ -539,8 +539,9 @@ def _summary_statistics(
                 "mean_C_perp_one_sided_rate": float(
                     rows.C_perp_one_sided_rate.mean()
                 ),
+                # Two-sided-only components have no one-sided diagnostic values.
                 "median_C_perp_one_sided_rate": float(
-                    rows.C_perp_one_sided_rate.median()
+                    rows.C_perp_one_sided_rate.dropna().median()
                 ),
             }
         )
@@ -659,7 +660,7 @@ def extract_ridge_components(
                         segment_rows.abs_delta_theta_ridge_mu.mean()
                     ),
                     "median_abs_delta_theta_ridge_mu": float(
-                        segment_rows.abs_delta_theta_ridge_mu.median()
+                        segment_rows.abs_delta_theta_ridge_mu.dropna().median()
                     ),
                     "maximum_abs_delta_theta_ridge_mu": float(
                         segment_rows.abs_delta_theta_ridge_mu.max()
@@ -708,7 +709,7 @@ def extract_ridge_components(
                 if not mismatch_rows.empty
                 else np.nan,
                 "median_abs_delta_theta_ridge_mu": float(
-                    mismatch_rows.abs_delta_theta_ridge_mu.median()
+                    mismatch_rows.abs_delta_theta_ridge_mu.dropna().median()
                 )
                 if not mismatch_rows.empty
                 else np.nan,

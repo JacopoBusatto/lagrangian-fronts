@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
+from ._progress import track
 from .geometry import (
     GeographicGeometry,
     SpatialGeometry,
@@ -190,7 +191,10 @@ def compute_global_gradient_fields(
     for name, values in flat_fields.items():
         output[name] = values[indexes]
     flags: list[str] = []
-    for row in output.itertuples(index=False):
+    for row in track(
+        output.itertuples(index=False), desc="Validation: cell gradients",
+        total=len(output), unit="cells",
+    ):
         row_flags: list[str] = []
         if not np.isfinite(row.S_flux):
             row_flags.append("flux_undefined")
@@ -313,7 +317,10 @@ def _local_gradient_context(
         global_cells.abs_G_perp.notna(), ["cell_id", "x", "y", "abs_G_perp"]
     ]
     records: list[dict[str, Any]] = []
-    for point in points.itertuples(index=False):
+    for point in track(
+        points.itertuples(index=False), desc="Validation: flank comparisons",
+        total=len(points), unit="flanks",
+    ):
         _, _, flank_distance = geometry.inverse(
             np.full(len(supported), point.flank_x),
             np.full(len(supported), point.flank_y),
@@ -518,7 +525,11 @@ def _unique_comparison(segment: pd.DataFrame, config: Any) -> pd.DataFrame:
         "grid_effective_scale_length",
         "R1_out_center",
     ]
-    for (cell_id, side), group in segment.groupby(["ridge_cell_id", "side"], sort=True):
+    groups = segment.groupby(["ridge_cell_id", "side"], sort=True)
+    for (cell_id, side), group in track(
+        groups, desc="Validation: comparison groups", total=groups.ngroups,
+        unit="groups",
+    ):
         first = group.iloc[0]
         distance_spread = float(
             group.flank_distance_length.max() - group.flank_distance_length.min()
@@ -561,7 +572,8 @@ def _unique_comparison(segment: pd.DataFrame, config: Any) -> pd.DataFrame:
             ),
         }
         for field in median_fields:
-            record[field] = float(group[field].median())
+            # Unobservable gradients leave some diagnostics entirely missing.
+            record[field] = float(group[field].dropna().median())
         flags = sorted(
             {
                 flag
@@ -639,7 +651,10 @@ def compute_stage7_fields(
             global_supported.abs_G_perp.ge(global_levels[label])
         ]
         represented = 0
-        for row in strong.itertuples(index=False):
+        for row in track(
+            strong.itertuples(index=False), desc=f"Validation: gradient coverage ({label})",
+            total=len(strong), unit="cells",
+        ):
             if unique.empty:
                 continue
             _, _, distances = geometry.inverse(

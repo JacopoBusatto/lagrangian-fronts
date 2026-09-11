@@ -8,6 +8,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from ._progress import track
 from .geometry import (
     GeographicGeometry,
     SpatialGeometry,
@@ -417,8 +418,10 @@ def _add_along_branch_composites(
     ):
         output[field_name] = np.nan
     span_by_section: dict[str, float] = {}
-    for (experiment_id, segment_id), group_summary in summaries.groupby(
-        ["experiment_id", "segment_id"], sort=False
+    groups = summaries.groupby(["experiment_id", "segment_id"], sort=False)
+    for (experiment_id, segment_id), group_summary in track(
+        groups, desc="Flux fronts: profile composites", total=groups.ngroups,
+        unit="segments",
     ):
         for focal in group_summary.itertuples(index=False):
             neighbors = group_summary.loc[
@@ -520,7 +523,10 @@ def _detect_drop_zones(
     zone_records: list[dict[str, Any]] = []
     flank_records: list[dict[str, Any]] = []
     summary_updates: list[dict[str, Any]] = []
-    for summary in summaries.itertuples(index=False):
+    for summary in track(
+        summaries.itertuples(index=False), desc="Flux fronts: detection",
+        total=len(summaries), unit="sections",
+    ):
         profile = cross_sections.loc[
             cross_sections.section_id.eq(summary.section_id)
         ].copy()
@@ -816,7 +822,10 @@ def compute_stage6_fields(
         ]
         members = members.merge(segment_context, on="segment_id", how="left")
         members["grid_effective_scale_length"] = members.cell_id.map(scale_by_cell)
-        for _, center in members.iterrows():
+        for _, center in track(
+            members.iterrows(), desc="Flux fronts: sampling",
+            total=len(members), unit="sections",
+        ):
             rows, section_summary = _section_rows(
                 center,
                 members,
@@ -916,16 +925,16 @@ def compute_stage6_fields(
                 ),
                 f"{prefix}_low_R1_sections": int(group.low_R1_out.sum()),
                 f"{prefix}_median_left_drop_distance_length": float(
-                    group.left_drop_distance_length.median()
+                    group.left_drop_distance_length.dropna().median()
                 ),
                 f"{prefix}_median_right_drop_distance_length": float(
-                    group.right_drop_distance_length.median()
+                    group.right_drop_distance_length.dropna().median()
                 ),
                 f"{prefix}_median_absolute_left_right_distance_asymmetry_length": float(
-                    asymmetry.median()
+                    asymmetry.dropna().median()
                 ),
                 f"{prefix}_median_flank_absolute_drop": float(
-                    flanks.absolute_drop.median()
+                    flanks.absolute_drop.dropna().median()
                 ),
                 f"{prefix}_along_persistent_flank_fraction": float(
                     flanks.along_branch_persistence.mean()
@@ -934,13 +943,13 @@ def compute_stage6_fields(
                     flanks.nearby_branch_contamination.sum()
                 ),
                 f"{prefix}_median_raw_total_variation": float(
-                    group.profile_total_variation_raw.median()
+                    group.profile_total_variation_raw.dropna().median()
                 ),
                 f"{prefix}_median_smoothed_total_variation": float(
-                    group.profile_total_variation_smoothed.median()
+                    group.profile_total_variation_smoothed.dropna().median()
                 ),
                 f"{prefix}_median_fractional_variation_reduction": float(
-                    variation_reduction.median()
+                    variation_reduction.dropna().median()
                 ),
                 f"{prefix}_curved_sections_with_valid_core": int(
                     (

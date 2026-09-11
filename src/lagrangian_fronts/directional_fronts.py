@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 
 from ._edge_kernel import robust_contiguous_median
+from ._progress import track
 from .config import AnalysisConfig
 from .directional_cores import DirectionalCoreSolution
 from .geometry import (
@@ -297,7 +298,10 @@ def _add_graph_composites(
     }
     output_frames: list[pd.DataFrame] = []
     neighbor_count: dict[str, int] = {}
-    for focal in summaries.itertuples(index=False):
+    for focal in track(
+        summaries.itertuples(index=False), desc="Directional fronts: profile composites",
+        total=len(summaries), unit="sections",
+    ):
         neighbor_cells = _neighbors_within_hops(
             int(focal.core_cell_id),
             graph,
@@ -417,7 +421,10 @@ def _detect_drops(
     candidate_records: list[dict[str, Any]] = []
     summary_updates: list[dict[str, Any]] = []
     interval = config.fronts.sampling_interval_grid_scales
-    for summary in summaries.itertuples(index=False):
+    for summary in track(
+        summaries.itertuples(index=False), desc="Directional fronts: detection",
+        total=len(summaries), unit="sections",
+    ):
         profile = cross_sections.loc[
             cross_sections.section_id.eq(summary.section_id)
         ].copy()
@@ -700,7 +707,10 @@ def compute_probable_directional_fronts(
     geometry = make_spatial_geometry(config.geometry)
     cross_outputs: list[pd.DataFrame] = []
     summary_records: list[dict[str, Any]] = []
-    for center in cores.cores.itertuples(index=False):
+    for center in track(
+        cores.cores.itertuples(index=False), desc="Directional fronts: sampling",
+        total=len(cores.cores), unit="sections",
+    ):
         rows, summary = _section_rows(
             pd.Series(center._asdict()), prepared, support, config, geometry
         )

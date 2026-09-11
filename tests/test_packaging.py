@@ -28,6 +28,7 @@ def test_version_and_distribution_agree():
                for entry in distribution.entry_points)
     assert not any("kinematicparcels" in requirement.lower()
                    for requirement in distribution.requires or [])
+    assert "tqdm>=4.66" in distribution.requires
 
 
 @pytest.mark.parametrize("entrypoint", ["console", "module"])
@@ -66,10 +67,15 @@ def test_portable_examples_through_installed_console(tmp_path, mode):
         process = subprocess.run([console_script(), "--config", str(config_path)],
                                  cwd=outside, env=env, capture_output=True, text=True)
         assert process.returncode == 0, process.stdout + process.stderr
+        assert "Mean of empty slice" not in process.stderr
         output = tmp_path / "outputs" / run_name
+        assert process.stdout.strip() == str(output)
+        assert "Run completed in " in process.stderr
+        assert "sections/s" not in process.stderr
         manifest = json.loads((output / "manifest.json").read_text())
         assert manifest["status"] == "complete"
         assert manifest["software"]["module_version"] == lagrangian_fronts.__version__
+        assert manifest["software"]["dependencies"]["tqdm"] == metadata.version("tqdm")
         assert len(list((output / "analysis/figures").glob("*.png"))) == 8
         assert pd.read_parquet(output / "analysis/flux_fronts.parquet").front_detected.any()
         assert pd.read_parquet(output / "analysis/directional_fronts.parquet").front_detected.any()

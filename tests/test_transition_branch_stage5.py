@@ -225,6 +225,25 @@ def test_stage5_weak_background_ridge_remains_in_unthresholded_candidates() -> N
     ].item()
 
 
+def test_stage5_single_cell_component_keeps_undefined_tangent_diagnostics() -> None:
+    grid = _regular_grid()
+    cells = _cells(grid, np.ones((grid.ny, grid.nx)))
+    core_id = 3 * grid.nx + 3
+    cells["ridge_candidate"] = cells.cell_id.eq(core_id)
+
+    members, components, segment_members, segments = _extract(cells, grid)
+
+    assert members.cell_id.tolist() == [core_id]
+    assert components.component_geometry.tolist() == ["isolated_cell"]
+    assert segment_members.cell_id.tolist() == [core_id]
+    assert segment_members.ridge_tangent_bearing.isna().all()
+    for table in (components, segments):
+        assert table.n_cells.tolist() == [1]
+        assert table.physical_length_length.tolist() == [0.0]
+        assert table.integrated_ridge_strength_area_rate.tolist() == [0.0]
+        assert table.median_abs_delta_theta_ridge_mu.isna().all()
+
+
 def test_stage5_low_r1_cell_is_flagged_without_removal() -> None:
     grid = _regular_grid()
     intensity = np.ones((7, 7))

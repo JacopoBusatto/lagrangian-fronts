@@ -23,6 +23,7 @@ dependencies = [
     "pyproj>=3.6",
     "matplotlib>=3.8",
     "cartopy>=0.22",
+    "tqdm>=4.66",
 ]
 
 [project.optional-dependencies]
@@ -39,3 +40,4 @@ version = {attr = "lagrangian_fronts.__version__"}
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+filterwarnings = ["error:Mean of empty slice:RuntimeWarning"]
