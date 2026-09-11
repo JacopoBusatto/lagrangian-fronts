@@ -8,7 +8,7 @@ matrix:
   time_unit: day
 output:
   root: "F:/PLATFORMS/DRIFTERS/postprocessing/SO_aoml_24h/lagrangian-fronts_10d"
-  run_name: drifters_10d
+  run_name: drifters_10d_p90
 geometry:
   coordinate_system: geographic
   length_unit: km
@@ -25,7 +25,7 @@ statistics:
   min_moving_support: 3
   angular_bins: 36
 flux:
-  percentile: 0.85
+  percentile: 0.90
   ridge_field: raw
   transverse_scale_grid: 2.0
 directional:
